@@ -141,7 +141,11 @@
               <span class="price">$1280</span>
             </div> <!-- price-wrap.// -->
           </div>
-          <a href="#" class="btn btn-block btn-primary">Add to cart </a>
+          {% if product.stock <= 0 %}
+            <h3 class="text-danger">Out of stock</h3>
+          {% else %}
+            <a href="{% url 'add_cart' product.id %}" class="btn btn-block btn-primary">Add to cart </a>
+          {% endif %}
         </figcaption>
       </figure>
     </div> <!-- col.// -->
