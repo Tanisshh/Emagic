@@ -15,7 +15,6 @@ class Product(models.Model):
     date_modified = models.DateTimeField(auto_now_add=True)
     date_created = models.DateTimeField(auto_now=True)
 
-
     def get_url(self):
         return reverse('product_detail', args=[self.category.slug, self.slug])
 
@@ -44,5 +43,5 @@ class Variation(models.Model):
 
     objects = VariationManager()
 
-    def __unicode__(self):
-        return self.product
+    def __str__(self):
+        return self.variation_value
