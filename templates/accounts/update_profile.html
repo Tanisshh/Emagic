@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section-conten padding-y bg">
+
+<div class="container">
+	<div class="row">
+		{% include 'includes/aside_dashboard.html' %}
+	<main class="col-md-9">
+		<header class="card-header">
+			<div style="text-align:center;">
+
+		{% include 'includes/alerts.html' %}
+			<strong class="d-inline-block mr-3">Update Profile</strong>
+
+		</div>
+		</header><br>
+  	<form action="{% url 'update_profile' %}" method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label>First Name</label>
+					{{ user_form.first_name }}
+				</div>
+
+				<div class="form-group col-md-6">
+					<label>Last Name</label>
+					{{ user_form.last_name }}
+				</div>
+			</div>
+
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label>Phone</label>
+					{{ user_form.phone_number }}
+				</div>
+
+				<div class="form-group col-md-6">
+					<label>Image</label>
+					{{ user_profile_form.profile_picture }}
+				</div>
+			</div>
+
+				<div class="form-group">
+					<label>Address</label>
+					{{ user_profile_form.address }}
+				</div>
+
+
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label>City</label>
+					{{ user_profile_form.city }}
+				</div>
+
+				<div class="form-group col-md-6">
+					<label>Country</label>
+					{{ user_profile_form.country }}
+				</div>
+			</div>
+			<div class="col-md-12 text-center">
+				<input type="submit" class="btn btn-primary" value="Save">
+			</div>
+			</form>
+	</main>
+</div> <!-- row.// -->
+</div>
+
+
+</section>
+{% endblock %}

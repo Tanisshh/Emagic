@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
-from .forms import RegistrationForm
-from .models import Accounts
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import RegistrationForm, UserProfileForm, UserForm
+from .models import Accounts, UserProfile
 from django.http import HttpResponse
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
@@ -13,6 +13,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 from carts.models import Cart, CartItem
 from carts.views import _cart_id
+from orders.models import Order, OrderProduct
 # from django.contrib.sites.models import Site
 
 # Create your views here.
@@ -107,7 +108,28 @@ def logout(request):
 
 @login_required(login_url = 'login')
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    orders=Order.objects.filter(user=request.user, is_orderd=True).order_by('-created_at')
+
+    context={
+        'orders' : orders
+    }
+    return render(request, 'accounts/dashboard.html', context)
+
+@login_required(login_url = 'login')
+def order_detail(request, order_id):
+    order_detail = OrderProduct.objects.filter(order__order_number=order_id)
+    order = Order.objects.get(order_number=order_id)
+    subtotal=0
+    for i in order_detail:
+        subtotal += i.product_price * i.quantity
+
+    context = {
+        'order_detail': order_detail,
+        'order': order,
+        'subtotal': subtotal,
+    }
+
+    return render(request, 'accounts/order_detail.html', context)
 
 
 def activate(request, uidb64, token):
@@ -184,3 +206,63 @@ def reset_password(request):
             return redirect('reset_password')
     else:
         return render(request, 'accounts/reset_password.html')
+
+
+@login_required(login_url = 'login')
+def update_profile(request):
+
+    userprofile_exist = UserProfile.objects.filter(user_id=request.user.id).exists
+    try:
+        if not userprofile_exist:
+            profile = UserProfile.objects.create(user=request.user)
+    except:
+        pass
+    userprofile=UserProfile.objects.get(user=request.user)
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        user_profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+        if user_form.is_valid() and user_profile_form.is_valid():
+            user_form.save()
+            user_profile_form.save()
+            userprofile = user_profile_form.instance
+            messages.success(request, 'Your profile has updated')
+            context= {
+                'user_form': user_form,
+                'user_profile_form': user_profile_form,
+                'userprofile': userprofile,
+                }
+            return render(request, 'accounts/update_profile.html', context)
+    else:
+        user_form = UserForm(instance=request.user)
+        user_profile_form = UserProfileForm(instance=userprofile)
+
+    context= {
+        'user_form': user_form,
+        'user_profile_form': user_profile_form,
+        'userprofile': userprofile,
+        }
+    return render(request, 'accounts/update_profile.html', context)
+
+
+@login_required(login_url = 'login')
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST["current_password"]
+        new_password = request.POST["new_password"]
+        confirm_password = request.POST["confirm_password"]
+        user = Accounts.objects.get(username__exact=request.user.username)
+        if new_password == confirm_password:
+            valid_password=user.check_password(current_password)
+            if valid_password:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, 'Your Password has changed')
+                return redirect('change_password')
+            else:
+                messages.error(request, 'Enter Valid Password')
+                return redirect('change_password')
+        else:
+            messages.error(request, 'Password does Not Match')
+            return redirect('change_password')
+
+    return render(request, 'accounts/change_password.html')

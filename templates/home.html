@@ -34,6 +34,16 @@
 				<figcaption class="info-wrap">
 					<a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
 					<div class="price mt-1">${{ product.price }}</div> <!-- price-wrap.// -->
+					<!-- rating -->
+					<div class="rating-star">
+						<span>
+							<i class="fa fa-star{% if product.avgreview < 0.5 %}-o{% elif product.avgreview >= 0.5 and product.avgreview < 1 %}-half-o {% endif %}" area-hidden="True"></i>
+							<i class="fa fa-star{% if product.avgreview < 1.5 %}-o{% elif product.avgreview >= 1.5 and product.avgreview < 2 %}-half-o {% endif %}" area-hidden="True"></i>
+							<i class="fa fa-star{% if product.avgreview < 2.5 %}-o{% elif product.avgreview >= 2.5 and product.avgreview < 3 %}-half-o {% endif %}" area-hidden="True"></i>
+							<i class="fa fa-star{% if product.avgreview < 3.5 %}-o{% elif product.avgreview >= 3.5 and product.avgreview < 4 %}-half-o {% endif %}" area-hidden="True"></i>
+							<i class="fa fa-star{% if product.avgreview < 4.5 %}-o{% elif product.avgreview >= 4.5 and product.avgreview < 5 %}-half-o {% endif %}" area-hidden="True"></i>
+						</span>
+					</div>
 				</figcaption>
 			</div>
 		</div> <!-- col.// -->

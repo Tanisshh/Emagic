@@ -2,6 +2,7 @@ from django.db import models
 from category.models import Category
 from django.urls import reverse
 from accounts.models import Accounts
+from django.db.models import Avg
 # Create your models here.
 
 class Product(models.Model):
@@ -18,6 +19,13 @@ class Product(models.Model):
 
     def get_url(self):
         return reverse('product_detail', args=[self.category.slug, self.slug])
+
+    def avgreview(self):
+        reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=Avg('rating'))
+        avg=0
+        if reviews['average'] is not None:
+            avg=float(reviews['average'])
+        return avg
 
     def __str__(self):
         return self.product_name
@@ -54,9 +62,21 @@ class ReviewRating(models.Model):
     user = models.ForeignKey(Accounts, on_delete=models.CASCADE)
     review = models.CharField(max_length=100, blank=True)
     rating = models.FloatField()
+    status = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
     def __str__(self):
         return self.review
+
+
+class ProductGallery(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
+    photo = models.ImageField(upload_to='photos/products/', max_length=255)
+
+    def __str__(self):
+        return self.product.product_name
+    class Meta:
+        verbose_name= 'productgallery'
+        verbose_name_plural = 'product gallery'
